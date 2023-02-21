@@ -1,7 +1,7 @@
 export default {
   logo: <h1>TurboCore Docs</h1>,
   project: {
-    link: 'https://blog.samiyousef.ca',
+    link: 'https://github.com/Turbo-Core/TurboCore',
   },
   useNextSeoProps() {
 	  return {
