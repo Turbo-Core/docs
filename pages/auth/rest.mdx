@@ -227,9 +227,8 @@ You can change a user's password by sending a PATCH request to the ```/api/auth/
 **Request Body:**
 | Property Name | Type | Description |
 | --- | --- | --- |
-| uid | string | The UID of the user |
-| oldPassword | string | The old password of the user |
-| newPassword | string | The new password of the user |
+| old_password | string | The old password of the user |
+| new_password | string | The new password of the user |
 
 **Response Body:** None
 
@@ -273,7 +272,7 @@ You can update a user's email or metadata by sending a PUT request to the ```/ap
 - **INVALID_EMAIL:** The email is invalid
 
 ## DELETE /api/auth/user 🔒
-You can delete a user by sending a DELETE request to the ```/api/auth/user``` endpoint.
+You can delete a user by sending a DELETE request to the ```/api/auth/user``` endpoint. Will return an OK response even if the user does not exist.
 
 **Method:** DELETE
 
@@ -285,4 +284,3 @@ You can delete a user by sending a DELETE request to the ```/api/auth/user``` en
 
 **Common Errors:**
 - **NOT_AUTHENTICATED:** The user is not signed in
-- **USER_NOT_FOUND:** The user was not found
