@@ -1,5 +1,6 @@
 export default {
-  logo: <h1>TurboCore Docs</h1>,
+  logo: <h1>🚀 TurboCore Docs</h1>,
+  docsRepositoryBase: "https://github.com/Turbo-Core/docs/tree/main/",
   project: {
     link: 'https://github.com/Turbo-Core/TurboCore',
   },
@@ -15,6 +16,7 @@ export default {
     text: <span>
       {new Date().getFullYear()} © TurboCore.
     </span>,
-  }
+  },
+  faviconGlyph: '🚀',
   // https://nextra.site/docs/docs-theme/theme-configuration
 }
