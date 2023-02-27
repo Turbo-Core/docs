@@ -25,26 +25,29 @@ You can get a user's information by sending a GET request to the ```/api/auth/us
 | --- | --- | --- |
 | uid | string | The UID of the user |
 | email | string | The email of the user |
+| created_at | integer | The date the user was created in UNIX epoch time |
+| updated_at | integer | The date the user was last updated in UNIX epoch time |
+| last_login | integer \| null | The date the user last logged in in UNIX epoch time |
+| active | boolean | Whether the user is active |
 | email_verified | boolean | Whether the user's email is verified |
-| metadata | object | A JSON object containing any additional metadata you want to store with the user |
+| metadata | string | A JSON string to store additional metadata about the user |
 
 **Example response:**
 ```json
 {
     "uid": "710f7e29-4082-4421-b9b5-49f56a393832",
     "email": "mail@example.com",
+    "created_at": 1633040000,
+    "updated_at": 1633040000,
+    "last_login": 1633040000,
     "email_verified": true,
-    "metadata": {
-        "role": "admin",
-        "name": "John Doe",
-        "age": 21
-    }
+    "metadata": "{\"role\": \"admin\", \"name\": \"John Doe\", \"age\": 21}"
 }
 ```
 
 **Common Errors:**
-- **NOT_AUTHENTICATED:** The user is not signed in
-- **USER_NOT_FOUND:** The user was not found
+- **NOT_AUTHENTICATED:** The `Authorization` header is missing or invalid
+- **USER_NOT_FOUND:** The requested user was not found
 
 
 ## POST /api/auth/user/login
@@ -66,23 +69,19 @@ You can sign in a user by sending a POST request to the ```/api/auth/user/login`
 | uid          | string | The UID of the requested user       |
 | token        | string | The JWT token of requested the user |
 | expiry       | string | The date the token expires in UNIX epoch time |
-| refreshToken | string | A token used to get a new JWT token from TurboCore |
-| emailVerified | boolean | Whether the user's email has been verified |
-| metadata | object | A JSON object containing any additional metadata you want to store with the user |
+| refresh_token | string | A token used to get a new JWT token from TurboCore |
+| email_verified | boolean | Whether the user's email has been verified |
+| metadata | string | A JSON string to store additional metadata about the user |
 
 **Example response:**
 ```json
 {
     "uid": "710f7e29-4082-4421-b9b5-49f56a393832",
-    "token": "[JWT TOKEN]]",
+    "token": "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOiIxNjc3NDgwNDg3IiwiaXNzIjoiVHVyYm9Db3JlIiwidHlwZSI6ImF0IiwidWlkIjoiRGlkIHlvdSByZWFsbHkgdHJ5IHRvIGRlY29kZSBhbiBleGFtcGxlIEpXVD8ifQ.ha6rxS3FXwkj5dOcBps1ji0z_CgBgID0eYPHnEtDOKg",
     "expiry": 1633040000,
-    "refreshToken": "c1d2e3f4g5h6i7j8k9l0.c1d2e3f4g5h6i7j8k9l0.c1d2e3f4g5h6i7j8k9l0",
+    "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOiIxNjc3NDgwNDg3IiwiaXNzIjoiVHVyYm9Db3JlIiwidHlwZSI6ImF0IiwidWlkIjoiRGlkIHlvdSByZWFsbHkgdHJ5IHRvIGRlY29kZSBhbiBleGFtcGxlIEpXVD8ifQ.ha6rxS3FXwkj5dOcBps1ji0z_CgBgID0eYPHnEtDOKg",
     "emailVerified": true,
-    "metadata": {
-        "role": "admin",
-        "name": "John Doe",
-        "age": 21
-    }
+    "metadata": "{\"role\": \"admin\", \"name\": \"John Doe\", \"age\": 21}"
 }
 ```
 
@@ -104,20 +103,39 @@ You can create a user by sending a POST request to the ```/api/auth/user/create`
 | password | string | The password of the user |
 | login | boolean | Whether to login the user after signing up |
 | emailVerified | boolean | Whether the user's email has been verified |
-| metadata | object | A JSON object containing any additional metadata you want to store with the user |
+| metadata | string | A JSON string to store additional metadata about the user |
 {/* TODO: Consider adding a role property */}
 
 **Response Body:**
 | Property Name | Type | Description |
 | --- | --- | --- |
-| uid          | string | The UID of the requested user       |
+| uid          | string | The UID of the new user       |
 | token        | string \| null | The JWT token of requested the user |
 | expiry       | string \| null | The date the token expires in UNIX epoch time |
 | refreshToken | string \| null | A token used to get a new JWT token from TurboCore |
-| emailVerified | boolean | Whether the user's email has been verified |
-| metadata | object | A JSON object containing any additional metadata you want to store with the user |
+| emailVerified | boolean \| null | Whether the user's email has been verified |
+| metadata | string \| null | A JSON string to store additional metadata about the user |
 
-**Example Response:** Same response as the [login](#post-apiauthlogin) endpoint.
+
+**Example responses:**
+
+Without login:
+```json
+{
+    "uid": "710f7e29-4082-4421-b9b5-49f56a393832"
+}
+```
+With login:
+```json
+{
+    "uid": "710f7e29-4082-4421-b9b5-49f56a393832",
+    "token": "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOiIxNjc3NDgwNDg3IiwiaXNzIjoiVHVyYm9Db3JlIiwidHlwZSI6ImF0IiwidWlkIjoiRGlkIHlvdSByZWFsbHkgdHJ5IHRvIGRlY29kZSBhbiBleGFtcGxlIEpXVD8ifQ.ha6rxS3FXwkj5dOcBps1ji0z_CgBgID0eYPHnEtDOKg",
+    "expiry": 1633040000,
+    "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOiIxNjc3NDgwNDg3IiwiaXNzIjoiVHVyYm9Db3JlIiwidHlwZSI6ImF0IiwidWlkIjoiRGlkIHlvdSByZWFsbHkgdHJ5IHRvIGRlY29kZSBhbiBleGFtcGxlIEpXVD8ifQ.ha6rxS3FXwkj5dOcBps1ji0z_CgBgID0eYPHnEtDOKg",
+    "emailVerified": true,
+    "metadata": "{\"role\": \"admin\", \"name\": \"John Doe\", \"age\": 21}"
+}
+```
 
 **Common Errors:**
 - **EMAIL_ALREADY_IN_USE:** The email is already in use
@@ -141,40 +159,48 @@ You can refresh a user's JWT token by sending a POST request to the ```/api/auth
 | Property Name | Type | Description |
 | --- | --- | --- |
 | uid          | string | The UID of the requested user       |
-| token        | string | The JWT token of requested the user |
-| expiry       | string | The date the token expires in UNIX epoch time |
-| refreshToken | string | A token used to get a new JWT token from TurboCore |
+| access_token | string | The JWT token of requested the user |
+| refresh_token | string | A token used to get a new JWT token from TurboCore |
+| expiry       | integer | The date the token expires in UNIX epoch time |
 
 **Example Response:** 
 ```json
 {
     "uid": "710f7e29-4082-4421-b9b5-49f56a393832",
-    "token": "[JWT TOKEN]]",
+    "access_token": "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOiIxNjc3NDgwNDg3IiwiaXNzIjoiVHVyYm9Db3JlIiwidHlwZSI6ImF0IiwidWlkIjoiRGlkIHlvdSByZWFsbHkgdHJ5IHRvIGRlY29kZSBhbiBleGFtcGxlIEpXVD8ifQ.ha6rxS3FXwkj5dOcBps1ji0z_CgBgID0eYPHnEtDOKg",
     "expiry": 1633040000,
-    "refreshToken": "c1d2e3f4g5h6i7j8k9l0.c1d2e3f4g5h6i7j8k9l0.c1d2e3f4g5h6i7j8k9l0"
+    "refresh_token": "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOiIxNjc3NDgwNDg3IiwiaXNzIjoiVHVyYm9Db3JlIiwidHlwZSI6ImF0IiwidWlkIjoiRGlkIHlvdSByZWFsbHkgdHJ5IHRvIGRlY29kZSBhbiBleGFtcGxlIEpXVD8ifQ.ha6rxS3FXwkj5dOcBps1ji0z_CgBgID0eYPHnEtDOKg"
 }
 ```
 
 **Common Errors:**
-- **INVALID_REFRESH_TOKEN:** The refresh token is invalid
+- **INVALID_REFRESH_TOKEN:** The provided JWT could not be verified by the server
+- **EXPIRED_JWT:** The provided JWT has already expired
 
 ## POST /api/auth/user/logout 🔒
-You can sign out a user by sending a POST request to the ```/api/auth/user/logout``` endpoint.
+You can revoke a user's refresh token by sending a POST request to the ```/api/auth/user/logout``` endpoint. This has the effect of logging the user out. If a refresh token is not provided, then all the user's refresh token will be revoked, effectively logging the user out of all devices.
 
 **Method:** POST
 
 **Endpoint:** /api/auth/user/logout
 
-**Request Body:** None
+**Request Body:**
+| Property Name | Type | Description |
+| --- | --- | --- |
+| refreshToken | string | (Optional) The refresh token of the user |
 
 **Response Body:** None
 
 **Common Errors:**
-- **NOT_AUTHENTICATED:** The user is not signed in
+- **NOT_AUTHENTICATED:** The `Authorization` header is missing or invalid
+
+<Callout type="warning">
+    <strong>Warning:</strong> This endpoint does not revoke the user's access token, which expires after a maximum of 15 minutes.
+</Callout>
 
 
 ## POST /api/auth/magic-link
-You can send a magic link to a user by sending a POST request to the /api/auth/magic-link endpoint. The user will be redirected to the URL specified in the continueUrl parameter after they sign in.
+You can send a magic link to a user by sending a POST request to the /api/auth/magic-link endpoint. The user will be redirected to the URL specified in the next_url parameter after they sign in.
 
 **Method:** POST
 
@@ -184,22 +210,27 @@ You can send a magic link to a user by sending a POST request to the /api/auth/m
 | Property Name | Type | Description |
 | --- | --- | --- |
 | email | string | The email of the user |
-| continueUrl | string | The URL to redirect the user to after they sign in |
+| sign_up | boolean | Whether to create a new user if the user does not exist |
+| next_url | string | The URL to redirect the user to after they sign in |
 
 **Response Body:** None
 
-**Continue URL Parameters:**
+**Next URL Parameters:**
 | Property Name | Type | Description |
 | --- | --- | --- |
 | uid | string | The UID of the user |
-| token | string | The JWT token of the user |
-| expiry | string | The date the token expires in UNIX epoch time |
-| refreshToken | string | A token used to get a new JWT token from TurboCore |
+| at | string | The JWT token of the user |
+| rt | string | A token used to get a new JWT token from TurboCore |
+| exp | integer | The date the token expires in UNIX epoch time |
 
 **Common Errors:**
 - **INVALID_EMAIL:** The email is invalid
 - **USER_NOT_FOUND:** The user was not found
-⚠️
+
+<Callout type="info" emoji="ℹ️">
+    Once the user clicks the magic link, they will be redirected to the URL specified in the next_url parameter. The next_url parameter will be appended with the following query parameters: uid, at, rt, and exp as described in the table above.
+</Callout>
+
 ## POST /api/auth/user/verify-email 🔒
 You can verify a user's email by sending a POST request to the ```/api/auth/user/verify-email``` endpoint. This will send a verification email to the user's email address.
 
@@ -207,15 +238,18 @@ You can verify a user's email by sending a POST request to the ```/api/auth/user
 
 **Endpoint:** ```/api/auth/user/verify-email```
 
-**Request Body:** None
+**Request Body:**
+| Property Name | Type | Description |
+| --- | --- | --- |
+| next_url | string | The URL to redirect the user to after they verify their email |
 
 **Response Body:** None
 
 **Common Errors:**
-- **NOT_AUTHENTICATED:** The user is not signed in
+- **NOT_AUTHENTICATED:** The `Authorization` header is missing or invalid
 - **EMAIL_ALREADY_VERIFIED:** The user's email is already verified
-- **INVALID_EMAIL:** The email is invalid
 - **USER_NOT_FOUND:** The user was not found
+- **EMAIL_NOT_CONFIGURED:** The server is not configured to send emails
 
 ## PATCH /api/auth/user/change-password 🔒
 You can change a user's password by sending a PATCH request to the ```/api/auth/user/change-password``` endpoint.
@@ -227,13 +261,13 @@ You can change a user's password by sending a PATCH request to the ```/api/auth/
 **Request Body:**
 | Property Name | Type | Description |
 | --- | --- | --- |
-| old_password | string | The old password of the user |
+| old_password | string | The old password of the user or a reset password token |
 | new_password | string | The new password of the user |
 
 **Response Body:** None
 
 **Common Errors:**
-- **NOT_AUTHENTICATED:** The user is not signed in
+- **NOT_AUTHENTICATED:** The `Authorization` header is missing or invalid
 - **INVALID_PASSWORD:** The old password is invalid
 - **WEAK_PASSWORD:** The new password is too weak
 
@@ -248,8 +282,18 @@ You can reset a user's password by sending a POST request to the ```/api/auth/re
 | Property Name | Type | Description |
 | --- | --- | --- |
 | email | string | The email of the user |
+| reset_url | string | The URL where the user can reset their password |
 
 **Response Body:** None
+
+**Reset URL Parameters:**
+| Property Name | Type | Description |
+| --- | --- | --- |
+| token | string | A token used to reset the user's password. Pass this token to [`/api/auth/user/change-password`](#patch-apiauthuserchange-password-)|
+
+<Callout type="info" emoji="ℹ️">
+    The reset_url parameter will be appended with a token that can be used to reset the user's password by sending a PATCH request to the [`/api/auth/user/change-password`](#patch-apiauthuserchange-password-) endpoint.
+</Callout>
 
 ## PUT /api/auth/user 🔒
 You can update a user's email or metadata by sending a PUT request to the ```/api/auth/user``` endpoint.
@@ -262,7 +306,7 @@ You can update a user's email or metadata by sending a PUT request to the ```/ap
 | Property Name | Type | Description |
 | --- | --- | --- |
 | email | string | The new email of the user |
-| metadata | object | A JSON object containing any additional metadata you want to store with the user |
+| metadata | string | A JSON string to store additional metadata about the user |
 
 **Response Body:** None
 
@@ -272,7 +316,7 @@ You can update a user's email or metadata by sending a PUT request to the ```/ap
 - **INVALID_EMAIL:** The email is invalid
 
 ## DELETE /api/auth/user 🔒
-You can delete a user by sending a DELETE request to the ```/api/auth/user``` endpoint. Will return an OK response even if the user does not exist.
+You can delete a user by sending a DELETE request to the ```/api/auth/user``` endpoint.
 
 **Method:** DELETE
 
@@ -283,4 +327,4 @@ You can delete a user by sending a DELETE request to the ```/api/auth/user``` en
 **Response Body:** None
 
 **Common Errors:**
-- **NOT_AUTHENTICATED:** The user is not signed in
+- **NOT_AUTHENTICATED:** The `Authorization` header is missing or invalid
