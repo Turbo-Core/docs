@@ -1,0 +1,117 @@
+# Health Websocket API
+
+The Health Websocket API allows you to get real-time information about the health of your TurboCore instance. This includes information about the number of requests, logs, network traffic, CPU usage, and other metrics.
+
+## Connecting to the API
+The Health Websocket API is available at `ws://[DOMAIN]/api/health/ws`. You can connect to the API using any WebSocket client. Before you can start receiving data, you must authenticate with the API. You can do this by sending a message beginning with `auth` and containing a JWT, separated by a space.
+
+Here is an example of connecting to the API in JavaScript:
+
+```js
+const socket = new WebSocket('ws://[DOMAIN]/api/health/ws')
+
+const token = getMyToken() // Get JWT from local storage or cookie
+
+socket.onopen(() => {
+	socket.send(`auth ${token}`)
+})
+
+socket.onmessage((event) => {
+	console.log(event.data) // Either "ok" or an error message
+})
+```
+{/* TODO: Add more examples */}
+
+## Commands	
+
+### `auth` - Authenticate with the API (Required)
+
+The `auth` command is used to authenticate with the API. It must be sent before any other commands. The command should be followed by a space and then a JWT. See above for an example. 
+
+### `sysinfo` - Get System Information
+
+The `sysinfo` command is used to get information about the system. This includes information about the CPU, memory, and disk usage. The API will respond with a JSON object containing the following fields:
+
+- `cpus` - An array of CPUs, each containing the following fields:
+	- `name` - The name of the CPU reported by the operating system
+	- `model` - The model of the CPU reported by the operating system
+	- `Usage` - The current CPU usage in percent
+- `mem` - An object containing information about the memory usage:
+	- `total` - The total amount of memory in bytes
+	- `used` - The amount of memory currently in use in bytes
+	- `free` - The amount of memory currently free in bytes
+	- `swap_total` - The total amount of swap memory in bytes
+	- `swap_used` - The amount of swap memory currently in use in bytes
+	- `swap_free` - The amount of swap memory currently free in bytes
+- `disks` - An array of disks, each containing the following fields:
+	- `name` - The name of the disk reported by the operating system
+	- `total` - The total amount of disk space in bytes
+	- `free` - The amount of disk space currently free in bytes
+
+Here is an example of the response:
+```json
+{
+  "cpus": [
+    {
+      "model": "Apple M1 Pro",
+      "name": "1",
+      "usage": 48.25581359863281
+    },
+    {
+      "model": "Apple M1 Pro",
+      "name": "2",
+      "usage": 47.674415588378906
+    },
+    {
+      "model": "Apple M1 Pro",
+      "name": "3",
+      "usage": 6.949807167053223
+    },
+    {
+      "model": "Apple M1 Pro",
+      "name": "4",
+      "usage": 5.609284400939941
+    },
+    {
+      "model": "Apple M1 Pro",
+      "name": "5",
+      "usage": 4.633204460144043
+    },
+    {
+      "model": "Apple M1 Pro",
+      "name": "6",
+      "usage": 3.4749035835266113
+    },
+    {
+      "model": "Apple M1 Pro",
+      "name": "7",
+      "usage": 1.3513513803482056
+    },
+    {
+      "model": "Apple M1 Pro",
+      "name": "8",
+      "usage": 0.5780346393585205
+    }
+  ],
+  "mem": {
+    "total": 17179869184,
+    "used": 16969285632,
+    "free": 210583552,
+    "swap_total": 3221225472,
+    "swap_used": 1456603136,
+    "swap_free": 1764622336
+  },
+  "disks": [
+    {
+      "free": 147038166923,
+      "name": "Macintosh HD",
+      "total": 494384795648
+    },
+    {
+      "free": 147038166923,
+      "name": "Macintosh HD",
+      "total": 494384795648
+    }
+  ]
+}
+```

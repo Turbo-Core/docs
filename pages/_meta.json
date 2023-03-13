@@ -2,5 +2,6 @@
     "index": "Home",
     "getting-started": "Getting Started",
     "using-the-api": "Using the REST API",
+	"health": "Health",
     "auth": "Authentication"
 }
